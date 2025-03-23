@@ -68,17 +68,29 @@ st.markdown("""
     margin-top: 5px;
 }
 .chat-container {
-    height: 400px;
+    min-height: 100px;
+    max-height: 400px;
     overflow-y: auto;
     padding: 10px;
     border: 1px solid #e6e6e6;
     border-radius: 5px;
     margin-bottom: 10px;
 }
+.main-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.stApp {
+    background-color: #f9f9f9;
+}
 </style>
 """, unsafe_allow_html=True)
 
 st.title("Chatbot AI 🤖")
+st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
 # Khởi tạo lịch sử chat trong session state nếu chưa có
 if "chat_history" not in st.session_state:
@@ -142,6 +154,8 @@ if submit_button and user_input:
     
     # Tự động rerun để cập nhật giao diện
     st.rerun()
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # JavaScript để cuộn xuống cuối cùng của container chat
 st.markdown("""
