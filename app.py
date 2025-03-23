@@ -4,27 +4,55 @@ import torch
 from datetime import datetime
 
 # Thiết lập tiêu đề và CSS tùy chỉnh - PHẢI ĐẶT ĐẦU TIÊN
-st.set_page_config(page_title="Chatbot AI", page_icon="🤖")
+st.set_page_config(page_title="Chatbot AI", page_icon="🤖", layout="wide")
 
-# CSS tùy chỉnh cho giao diện chat và loại bỏ khoảng trắng
+# CSS tùy chỉnh cho giao diện chat
 st.markdown("""
 <style>
+/* Thiết lập layout tổng thể */
+.main {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 0 !important;
+    max-width: 100% !important;
+}
+
 /* Loại bỏ padding mặc định của Streamlit */
 .block-container {
-    padding-top: 1rem !important;
-    padding-bottom: 0rem !important;
-    margin-top: -2rem;
+    padding: 0 !important;
+    max-width: 100% !important;
 }
 
-/* Loại bỏ khoảng trắng dưới tiêu đề */
-.stTitle {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
+/* Định dạng header */
+.header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
 }
 
-/* Loại bỏ khoảng trắng giữa các phần tử */
-.element-container {
-    margin-bottom: 0 !important;
+/* Định dạng khu vực chat */
+.chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Định dạng footer */
+.footer {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
 }
 
 /* Định dạng tin nhắn */
@@ -33,52 +61,68 @@ st.markdown("""
     padding: 10px;
     border-radius: 15px 15px 15px 0;
     margin: 5px 0;
-    display: flex;
-    justify-content: flex-start;
+    align-self: flex-start;
+    max-width: 80%;
 }
+
 .bot-message {
     background-color: #f0f0f0;
     padding: 10px;
     border-radius: 15px 15px 0 15px;
     margin: 5px 0;
-    display: flex;
-    justify-content: flex-end;
-}
-.message-container {
+    align-self: flex-end;
     max-width: 80%;
+}
+
+.message-content {
     word-wrap: break-word;
 }
+
 .timestamp {
     font-size: 0.8em;
     color: gray;
     margin-top: 5px;
 }
-.chat-container {
-    min-height: 50px;
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 5px;
-    border: 1px solid #e6e6e6;
-    border-radius: 5px;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-.main-container {
-    display: flex;
-    flex-direction: column;
-    max-width: 800px;
-    margin: 0 auto;
+
+/* Ẩn các phần tử không cần thiết */
+.stDeployButton, .viewerBadge, .css-1dp5vir, .css-1n76uvr {
+    display: none !important;
 }
 
-/* Giảm khoảng cách giữa các phần tử form */
-.stForm {
-    margin-top: 0.5rem !important;
+/* Định dạng nút và form */
+.stButton button {
+    width: 100%;
 }
-.stForm > div {
+
+/* Ẩn footer của Streamlit */
+footer {
+    display: none !important;
+}
+
+/* Loại bỏ padding của các container */
+.element-container {
     margin-bottom: 0 !important;
 }
-.stButton {
-    margin-top: 0 !important;
+
+/* Loại bỏ border của input */
+.stTextInput input {
+    border: 1px solid #e9ecef;
+    border-radius: 20px;
+    padding: 10px 15px;
+}
+
+/* Định dạng nút xóa lịch sử */
+.clear-button {
+    text-align: center;
+    margin-top: 0.5rem;
+}
+.clear-button button {
+    background-color: transparent;
+    color: #6c757d;
+    border: 1px solid #6c757d;
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 0.8rem;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -116,9 +160,6 @@ def chatbot(user_input, chat_history_ids, tokenizer, model):
 
     return response, chat_history_ids
 
-# Tiêu đề với padding nhỏ hơn
-st.markdown("<h1 style='margin-bottom:0; padding-bottom:0;'>Chatbot AI 🤖</h1>", unsafe_allow_html=True)
-
 # Khởi tạo lịch sử chat trong session state nếu chưa có
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
@@ -126,13 +167,16 @@ if "chat_history" not in st.session_state:
 if "chat_history_ids" not in st.session_state:
     st.session_state.chat_history_ids = None
 
-# Hiển thị lịch sử chat
-st.markdown('<div class="chat-container" id="chat-container">', unsafe_allow_html=True)
+# Header - Tiêu đề cố định ở đầu trang
+st.markdown('<div class="header"><h1>Chatbot AI 🤖</h1></div>', unsafe_allow_html=True)
+
+# Khu vực hiển thị lịch sử chat
+st.markdown('<div class="chat-area">', unsafe_allow_html=True)
 for message in st.session_state.chat_history:
     if message["role"] == "user":
         st.markdown(f"""
         <div class="user-message">
-            <div class="message-container">
+            <div class="message-content">
                 <b>Bạn:</b> {message["content"]}
                 <div class="timestamp">{message["time"]}</div>
             </div>
@@ -141,7 +185,7 @@ for message in st.session_state.chat_history:
     else:
         st.markdown(f"""
         <div class="bot-message">
-            <div class="message-container">
+            <div class="message-content">
                 <b>Chatbot:</b> {message["content"]}
                 <div class="timestamp">{message["time"]}</div>
             </div>
@@ -149,12 +193,21 @@ for message in st.session_state.chat_history:
         """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Tạo form nhập tin nhắn với padding nhỏ hơn
+# Footer - Khung nhập tin nhắn cố định ở dưới cùng
+st.markdown('<div class="footer">', unsafe_allow_html=True)
 with st.form(key="message_form", clear_on_submit=True):
-    user_input = st.text_input("Nhập tin nhắn của bạn:", key="user_input")
     cols = st.columns([4, 1])
+    with cols[0]:
+        user_input = st.text_input("", placeholder="Nhập tin nhắn của bạn...", label_visibility="collapsed")
     with cols[1]:
         submit_button = st.form_submit_button("Gửi")
+    
+    # Nút xóa lịch sử chat
+    if st.form_submit_button("Xóa lịch sử chat", type="secondary"):
+        st.session_state.chat_history = []
+        st.session_state.chat_history_ids = None
+        st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Xử lý khi người dùng gửi tin nhắn
 if submit_button and user_input:
@@ -188,20 +241,12 @@ if submit_button and user_input:
 st.markdown("""
 <script>
     function scrollToBottom() {
-        var chatContainer = document.getElementById('chat-container');
-        if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+        var chatArea = document.querySelector('.chat-area');
+        if (chatArea) {
+            chatArea.scrollTop = chatArea.scrollHeight;
         }
     }
     window.onload = scrollToBottom;
 </script>
 """, unsafe_allow_html=True)
-
-# Thêm nút để xóa lịch sử chat - đặt ở cuối và nhỏ hơn
-col1, col2, col3 = st.columns([1, 1, 1])
-with col2:
-    if st.button("Xóa lịch sử chat", type="secondary", use_container_width=True):
-        st.session_state.chat_history = []
-        st.session_state.chat_history_ids = None
-        st.rerun()
 
