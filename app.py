@@ -3,6 +3,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 from datetime import datetime
 
+# Thiết lập tiêu đề và CSS tùy chỉnh - PHẢI ĐẶT ĐẦU TIÊN
+st.set_page_config(page_title="Chatbot AI", page_icon="🤖")
+
 # Tải tokenizer và mô hình trước khi khởi động ứng dụng
 @st.cache_resource
 def load_model():
@@ -35,9 +38,6 @@ def chatbot(user_input, chat_history_ids, tokenizer, model):
     response = tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True)
 
     return response, chat_history_ids
-
-# Thiết lập tiêu đề và CSS tùy chỉnh
-st.set_page_config(page_title="Chatbot AI", page_icon="🤖")
 
 # CSS tùy chỉnh cho giao diện chat
 st.markdown("""
@@ -140,8 +140,8 @@ if submit_button and user_input:
         "time": current_time
     })
     
-    # Tự động rerun để cập nhật giao diện - SỬA LỖI Ở ĐÂY
-    st.rerun()  # Thay thế st.experimental_rerun() bằng st.rerun()
+    # Tự động rerun để cập nhật giao diện
+    st.rerun()
 
 # JavaScript để cuộn xuống cuối cùng của container chat
 st.markdown("""
@@ -160,5 +160,5 @@ st.markdown("""
 if st.button("Xóa lịch sử chat"):
     st.session_state.chat_history = []
     st.session_state.chat_history_ids = None
-    st.rerun()  # Thay thế st.experimental_rerun() bằng st.rerun()
+    st.rerun()
 
