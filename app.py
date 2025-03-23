@@ -140,8 +140,8 @@ if submit_button and user_input:
         "time": current_time
     })
     
-    # Tự động rerun để cập nhật giao diện
-    st.experimental_rerun()
+    # Tự động rerun để cập nhật giao diện - SỬA LỖI Ở ĐÂY
+    st.rerun()  # Thay thế st.experimental_rerun() bằng st.rerun()
 
 # JavaScript để cuộn xuống cuối cùng của container chat
 st.markdown("""
@@ -160,5 +160,5 @@ st.markdown("""
 if st.button("Xóa lịch sử chat"):
     st.session_state.chat_history = []
     st.session_state.chat_history_ids = None
-    st.experimental_rerun()
+    st.rerun()  # Thay thế st.experimental_rerun() bằng st.rerun()
 
